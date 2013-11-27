@@ -1,0 +1,17 @@
+2013-11-27 15:12:20,679 root:INFO Starting server https://localhost:8181/wsapi/2.0/verify
+2013-11-27 15:12:45,602 root:INFO Starting server https://localhost:8181/wsapi/2.0/verify
+2013-11-27 15:12:52,327 yubikeyutil:INFO --local_validate_otp--
+2013-11-27 15:12:52,328 yubikeyutil:INFO Payload: nonce=3EU7GOJGL5CVE7SS2WU4HAAKFG3VOK, timestamp=1, sl=100, timeout=2, h=LR621P0qRpvcEKTsXAxA3P/FRRM=, otp=vvghndudfdbtrjnvehrjllnncdirbcegjghnhugtrkre, id=336433162344040130602993106688, 
+2013-11-27 15:12:52,335 yubikeyutil:INFO The OTP is correct!
+2013-11-27 15:12:56,386 yubikeyutil:INFO --local_validate_otp--
+2013-11-27 15:12:56,386 yubikeyutil:INFO Payload: nonce=EOECWPX7WVH3UU08INUPRHW2LJFXKR, timestamp=1, sl=100, timeout=2, h=qnwmnlcLtRiSTN6PogWI1FDEqWE=, otp=vvghndudfdbtknuvbrkhhrubulhciilkbtjuiktkiflj, id=336433162344040130602993106688, 
+2013-11-27 15:12:56,395 yubikeyutil:INFO The OTP is correct!
+2013-11-27 15:13:01,442 yubikeyutil:INFO --local_validate_otp--
+2013-11-27 15:13:01,442 yubikeyutil:INFO Payload: nonce=UKS5DXB2EAJ6Y3W3NY9UQ0TY8NGTF6, timestamp=1, sl=100, timeout=2, h=RNnd3msvwP920koQBtQVTZ8KZQA=, otp=vvghndudfdbtfiungirtikiketnhrdlljhjkjungunfc, id=336433162344040130602993106688, 
+2013-11-27 15:13:01,452 yubikeyutil:INFO The OTP is correct!
+2013-11-27 15:13:09,500 yubikeyutil:INFO --local_validate_otp--
+2013-11-27 15:13:09,501 yubikeyutil:INFO Payload: nonce=JK1PKX5QNI5754DFKYIO2B9XH2AH9R, timestamp=1, sl=100, timeout=2, h=XgBENUrrUIpG769B4pCPmPn4JXo=, otp=vvghndudfdbthriturtfendvthgluebtbvbinukuuknk, id=336433162344040130602993106688, 
+2013-11-27 15:13:09,510 yubikeyutil:INFO The OTP is correct!
+2013-11-27 15:13:21,561 yubikeyutil:INFO --local_validate_otp--
+2013-11-27 15:13:21,562 yubikeyutil:INFO Payload: nonce=N2PL1YY15V5FG4NSLMOM35X9G8SIP6, timestamp=1, sl=100, timeout=2, h=0v1PJz4/0GPpJ32HaXIq89BBFDk=, otp=vvghndudfdbtlfleblhiuveuiibcfejlgukicnrcnbir, id=336433162344040130602993106688, 
+2013-11-27 15:13:21,573 yubikeyutil:INFO The OTP is correct!
