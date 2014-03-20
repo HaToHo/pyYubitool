@@ -26,3 +26,7 @@ httpsCert/server.crt
 httpsCert/server.key
 
 *.pyc
+
+.idea/inspectionProfiles/Project_Default.xml
+
+.idea/inspectionProfiles/profiles_settings.xml

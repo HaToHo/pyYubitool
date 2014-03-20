@@ -18,11 +18,14 @@ import Crypto.Cipher.AES
 #Add a logger for this class.
 logger = logging.getLogger("yubikeyutil")
 
+
 class OTPInvalid(Exception):
     pass
 
+
 class OTPServerError(Exception):
     pass
+
 
 class YubikeyDb:
 
@@ -320,23 +323,23 @@ class YubikeyValidation:
                             ". Session use from server: " + str(response_payload["sessionuse"]))
                             self.log_opt_user(otp, userid)
                             return False
-
-                    yubikey_time1 = int(session_log["yubikey_timestamp"])
-                    yubikey_time2 = int(response_payload["timestamp"])
-                    if yubikey_time1 >= yubikey_time2:
-                        logger.warn("The internal timestamp for the yubikey is not greater then last time. " +
-                                    "Possible attack!" + "Last timestamp: " + str(yubikey_time1) +
-                                    ". Timestamp from server: " + str(yubikey_time2))
-                        self.log_opt_user(otp, userid)
-                        return False
-                    elapsedTime = secondssince197001-int(float(session_log["seconds19700101"]))
-                    try:
-                        self.validateTimeStamp(elapsedTime, timestamp_error_margin,
-                                               yubikey_time1, yubikey_time2)
-                    except OTPInvalid:
-                        logger.warn("The internal time since last use of the yubikey do not match with the saved value!")
-                        self.log_opt_user(otp, userid)
-                        return False
+                        #The validation can only be performed during the same session.
+                        yubikey_time1 = int(session_log["yubikey_timestamp"])
+                        yubikey_time2 = int(response_payload["timestamp"])
+                        if yubikey_time1 >= yubikey_time2:
+                            logger.warn("The internal timestamp for the yubikey is not greater then last time. " +
+                                        "Possible attack!" + "Last timestamp: " + str(yubikey_time1) +
+                                        ". Timestamp from server: " + str(yubikey_time2))
+                            self.log_opt_user(otp, userid)
+                            return False
+                        elapsedTime = secondssince197001-int(float(session_log["seconds19700101"]))
+                        try:
+                            self.validateTimeStamp(elapsedTime, timestamp_error_margin,
+                                                   yubikey_time1, yubikey_time2)
+                        except OTPInvalid:
+                            logger.warn("The internal time since last use of the yubikey do not match with the saved value!")
+                            self.log_opt_user(otp, userid)
+                            return False
 
             if response_payload[yubikeyconf.STATUS_RESPONSE_PARAM] != yubikeyconf.OK:
                 logger.warn("The yubikey validation server did not respond status OK. STATUS: " +
@@ -522,18 +525,18 @@ class YubikeyValidation:
                         logger.info("Return: REPLAYED_REQUEST")
                         return self.create_yubikey_response_with_hash(response_payload,api_key, yubikeyconf.REPLAYED_REQUEST)
 
-                yubikey_time1 = int(session_log["yubikey_timestamp"])
-                yubikey_time2 = int(yubikey.tstp())
-                if yubikey_time1 >= yubikey_time2:
-                    logger.info("The yubikey internal timestamp is lesser then in the log.")
-                    logger.info("Timestamp in response: " + str(yubikey_time2))
-                    logger.info("Session use in log: " + str(yubikey_time1))
-                    logger.info("")
-                    logger.info("Return: REPLAYED_REQUEST")
-                    return self.create_yubikey_response_with_hash(response_payload,api_key, yubikeyconf.REPLAYED_REQUEST)
-                elapsedTime = secondssince197001-int(float(session_log["seconds19700101"]))
-                self.validateTimeStamp(elapsedTime, timestamp_error_margin,
-                                       yubikey_time1, yubikey_time2)
+                    yubikey_time1 = int(session_log["yubikey_timestamp"])
+                    yubikey_time2 = int(yubikey.tstp())
+                    if yubikey_time1 >= yubikey_time2:
+                        logger.info("The yubikey internal timestamp is lesser then in the log.")
+                        logger.info("Timestamp in response: " + str(yubikey_time2))
+                        logger.info("Session use in log: " + str(yubikey_time1))
+                        logger.info("")
+                        logger.info("Return: REPLAYED_REQUEST")
+                        return self.create_yubikey_response_with_hash(response_payload,api_key, yubikeyconf.REPLAYED_REQUEST)
+                    elapsedTime = secondssince197001-int(float(session_log["seconds19700101"]))
+                    self.validateTimeStamp(elapsedTime, timestamp_error_margin,
+                                           yubikey_time1, yubikey_time2)
 
             if str(payload[yubikeyconf.TIMESTAMP_REQUEST_PARAM]) == "1":
                 response_payload[yubikeyconf.SESSIONCOUNTER_RESPONSE_PARAM] = str(yubikey.sessionCtr())

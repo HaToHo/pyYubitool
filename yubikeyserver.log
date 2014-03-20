@@ -15,3 +15,4 @@
 2013-11-27 15:13:21,561 yubikeyutil:INFO --local_validate_otp--
 2013-11-27 15:13:21,562 yubikeyutil:INFO Payload: nonce=N2PL1YY15V5FG4NSLMOM35X9G8SIP6, timestamp=1, sl=100, timeout=2, h=0v1PJz4/0GPpJ32HaXIq89BBFDk=, otp=vvghndudfdbtlfleblhiuveuiibcfejlgukicnrcnbir, id=336433162344040130602993106688, 
 2013-11-27 15:13:21,573 yubikeyutil:INFO The OTP is correct!
+2013-11-29 09:29:17,442 root:INFO Starting server https://localhost:8181/wsapi/2.0/verify
