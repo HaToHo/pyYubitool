@@ -599,8 +599,7 @@ class YubikeyValidation:
     def create_yubikey_response_with_hash(self, payload, api_key, status):
         yubikeyurl = YubikeyUrl()
         payload[yubikeyconf.STATUS_RESPONSE_PARAM] = status
-        h = yubikeyurl.create_get_params(payload)
-        h = yubikeyurl.signature(api_key, h)
+        h = yubikeyurl.signature(api_key, payload)
         payload[yubikeyconf.HMACSHA1_SIGNATURE_RESPONSE_PARAM] = h
         return payload
 
@@ -615,9 +614,7 @@ class YubikeyUrl:
             return False
         if yubikeyconf.OTP_REQUEST_PARAM not in payload:
             return False
-        params = self.create_get_params(payload)
-        otp = payload[yubikeyconf.OTP_REQUEST_PARAM]
-        signature = self.signature(api_key, params)
+        signature = self.signature(api_key, payload)
         return payload[yubikeyconf.HASH_REQUEST_PARAM] == signature
 
     def create_get_params(self, payload):
@@ -645,13 +642,15 @@ class YubikeyUrl:
         payload[yubikeyconf.SECURITYLEVEL_REQUEST_PARAM] = sl
         payload[yubikeyconf.TIMEOUT_REQUEST_PARAM] = timeout
         payload[yubikeyconf.TIMESTAMP_REQUEST_PARAM] = timestamp
-        h = self.create_get_params(payload)
-        h = self.signature(api_key, h)
+        h = self.signature(api_key, payload)
         payload[yubikeyconf.HASH_REQUEST_PARAM] = h
         return payload
 
-    def signature (self, public_id, value):
-        return hmac.new(str(public_id), msg=str(value), digestmod=hashlib.sha1).hexdigest().decode('hex').encode('base64').strip()
+    def signature(self, public_id, payload):
+        sorted_keys = sorted(payload.keys())
+        sorted_pairs = ['='.join([key, payload[key]]) for key in sorted_keys if key != yubikeyconf.HASH_REQUEST_PARAM]
+        pairs_string = '&'.join(sorted_pairs)
+        return hmac.new(str(public_id), pairs_string, digestmod=hashlib.sha1).hexdigest().decode('hex').encode('base64').strip()
 
 class Yubikey:
     MODHEXCONVERT = {
