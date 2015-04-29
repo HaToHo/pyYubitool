@@ -448,18 +448,6 @@ class YubikeyValidation:
             response_payload[yubikeyconf.NONCE_RESPONSE_PARAM] = payload[yubikeyconf.NONCE_REQUEST_PARAM]
         response_payload[yubikeyconf.SECURITYLEVEL_RESPONSE_PARAM] = "100"
 
-        #Handle all optional parameters
-        if yubikeyconf.TIMEOUT_REQUEST_PARAM in payload:
-            #Timeout while performing requests to other servers. Not used by this server, since everythin is performed
-            #localy. Status NOT_ENOUGH_ANSWER can never occur.
-            pass
-        if not yubikeyconf.TIMESTAMP_REQUEST_PARAM in payload:
-            payload[yubikeyconf.TIMESTAMP_REQUEST_PARAM] = \
-                yubikeyconf.REQUEST_DEFAULT_VALUES[yubikeyconf.TIMESTAMP_REQUEST_PARAM]
-        if yubikeyconf.SECURITYLEVEL_REQUEST_PARAM not in payload:
-            pass
-            #No extarnal validation server will be used, so the response will always be 100. No check needed.
-
         utc_time = str(datetime.utcnow())
         response_payload[yubikeyconf.UTC_TIMESTAMP_RESPONSE_PARAM] = utc_time
 
@@ -487,6 +475,18 @@ class YubikeyValidation:
             logger.info("The client signature is wrong!")
             logger.info("Return: BAD_SIGNATURE")
             return self.create_yubikey_response_with_hash(response_payload, api_key, yubikeyconf.BAD_SIGNATURE)
+
+        #Handle all optional parameters
+        if yubikeyconf.TIMEOUT_REQUEST_PARAM in payload:
+            #Timeout while performing requests to other servers. Not used by this server, since everythin is performed
+            #localy. Status NOT_ENOUGH_ANSWER can never occur.
+            pass
+        if not yubikeyconf.TIMESTAMP_REQUEST_PARAM in payload:
+            payload[yubikeyconf.TIMESTAMP_REQUEST_PARAM] = \
+                yubikeyconf.REQUEST_DEFAULT_VALUES[yubikeyconf.TIMESTAMP_REQUEST_PARAM]
+        if yubikeyconf.SECURITYLEVEL_REQUEST_PARAM not in payload:
+            pass
+            #No extarnal validation server will be used, so the response will always be 100. No check needed.
 
         aes = db.aes_from_public_id(public_id)
 
