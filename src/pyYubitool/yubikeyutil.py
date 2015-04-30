@@ -448,18 +448,6 @@ class YubikeyValidation:
             response_payload[yubikeyconf.NONCE_RESPONSE_PARAM] = payload[yubikeyconf.NONCE_REQUEST_PARAM]
         response_payload[yubikeyconf.SECURITYLEVEL_RESPONSE_PARAM] = "100"
 
-        #Handle all optional parameters
-        if yubikeyconf.TIMEOUT_REQUEST_PARAM in payload:
-            #Timeout while performing requests to other servers. Not used by this server, since everythin is performed
-            #localy. Status NOT_ENOUGH_ANSWER can never occur.
-            pass
-        if not yubikeyconf.TIMESTAMP_REQUEST_PARAM in payload:
-            payload[yubikeyconf.TIMESTAMP_REQUEST_PARAM] = \
-                yubikeyconf.REQUEST_DEFAULT_VALUES[yubikeyconf.TIMESTAMP_REQUEST_PARAM]
-        if yubikeyconf.SECURITYLEVEL_REQUEST_PARAM not in payload:
-            pass
-            #No extarnal validation server will be used, so the response will always be 100. No check needed.
-
         utc_time = str(datetime.utcnow())
         response_payload[yubikeyconf.UTC_TIMESTAMP_RESPONSE_PARAM] = utc_time
 
@@ -487,6 +475,18 @@ class YubikeyValidation:
             logger.info("The client signature is wrong!")
             logger.info("Return: BAD_SIGNATURE")
             return self.create_yubikey_response_with_hash(response_payload, api_key, yubikeyconf.BAD_SIGNATURE)
+
+        #Handle all optional parameters
+        if yubikeyconf.TIMEOUT_REQUEST_PARAM in payload:
+            #Timeout while performing requests to other servers. Not used by this server, since everythin is performed
+            #localy. Status NOT_ENOUGH_ANSWER can never occur.
+            pass
+        if not yubikeyconf.TIMESTAMP_REQUEST_PARAM in payload:
+            payload[yubikeyconf.TIMESTAMP_REQUEST_PARAM] = \
+                yubikeyconf.REQUEST_DEFAULT_VALUES[yubikeyconf.TIMESTAMP_REQUEST_PARAM]
+        if yubikeyconf.SECURITYLEVEL_REQUEST_PARAM not in payload:
+            pass
+            #No extarnal validation server will be used, so the response will always be 100. No check needed.
 
         aes = db.aes_from_public_id(public_id)
 
@@ -599,8 +599,7 @@ class YubikeyValidation:
     def create_yubikey_response_with_hash(self, payload, api_key, status):
         yubikeyurl = YubikeyUrl()
         payload[yubikeyconf.STATUS_RESPONSE_PARAM] = status
-        h = yubikeyurl.create_get_params(payload)
-        h = yubikeyurl.signature(api_key, h)
+        h = yubikeyurl.signature(api_key, payload)
         payload[yubikeyconf.HMACSHA1_SIGNATURE_RESPONSE_PARAM] = h
         return payload
 
@@ -615,9 +614,7 @@ class YubikeyUrl:
             return False
         if yubikeyconf.OTP_REQUEST_PARAM not in payload:
             return False
-        params = self.create_get_params(payload)
-        otp = payload[yubikeyconf.OTP_REQUEST_PARAM]
-        signature = self.signature(api_key, params)
+        signature = self.signature(api_key, payload)
         return payload[yubikeyconf.HASH_REQUEST_PARAM] == signature
 
     def create_get_params(self, payload):
@@ -645,13 +642,15 @@ class YubikeyUrl:
         payload[yubikeyconf.SECURITYLEVEL_REQUEST_PARAM] = sl
         payload[yubikeyconf.TIMEOUT_REQUEST_PARAM] = timeout
         payload[yubikeyconf.TIMESTAMP_REQUEST_PARAM] = timestamp
-        h = self.create_get_params(payload)
-        h = self.signature(api_key, h)
+        h = self.signature(api_key, payload)
         payload[yubikeyconf.HASH_REQUEST_PARAM] = h
         return payload
 
-    def signature (self, public_id, value):
-        return hmac.new(str(public_id), msg=str(value), digestmod=hashlib.sha1).hexdigest().decode('hex').encode('base64').strip()
+    def signature(self, public_id, payload):
+        sorted_keys = sorted(payload.keys())
+        sorted_pairs = ['='.join([key, payload[key]]) for key in sorted_keys if key != yubikeyconf.HASH_REQUEST_PARAM]
+        pairs_string = '&'.join(sorted_pairs)
+        return hmac.new(str(public_id), pairs_string, digestmod=hashlib.sha1).hexdigest().decode('hex').encode('base64').strip()
 
 class Yubikey:
     MODHEXCONVERT = {
