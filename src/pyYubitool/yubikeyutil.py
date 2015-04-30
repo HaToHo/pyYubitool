@@ -618,17 +618,11 @@ class YubikeyUrl:
         return payload[yubikeyconf.HASH_REQUEST_PARAM] == signature
 
     def create_get_params(self, payload):
-        value = ""
-        first = True
-        for key in sorted(payload.iterkeys()):
-            if key != yubikeyconf.HASH_REQUEST_PARAM:
-                tmpvalue = key + "=" + str(payload[key])
-                if first:
-                    first = False
-                else:
-                    tmpvalue = "&" + tmpvalue
-                value += tmpvalue
-        return value
+        sorted_keys = sorted(payload.keys())
+        sorted_pairs = ['='.join([key, payload[key]]) for key in sorted_keys if
+                        key != yubikeyconf.HASH_REQUEST_PARAM]
+        pairs_string = '&'.join(sorted_pairs)
+        return pairs_string
 
 
     def create_request_payload(self, api_key, id, nonce, opt,
@@ -647,9 +641,7 @@ class YubikeyUrl:
         return payload
 
     def signature(self, public_id, payload):
-        sorted_keys = sorted(payload.keys())
-        sorted_pairs = ['='.join([key, payload[key]]) for key in sorted_keys if key != yubikeyconf.HASH_REQUEST_PARAM]
-        pairs_string = '&'.join(sorted_pairs)
+        pairs_string = self.create_get_params(payload)
         return hmac.new(str(public_id), pairs_string, digestmod=hashlib.sha1).hexdigest().decode('hex').encode('base64').strip()
 
 class Yubikey:
@@ -678,18 +670,19 @@ class Yubikey:
 
     def public_id(self):
         return self._public_id
+
     def uid(self):
         return self._decoded_otp[0:6].encode('hex')
 
     def useCtr(self):
-        return int("0x" + self._decoded_otp[7].encode('hex') + self._decoded_otp[6].encode('hex'), 0)
+        return int("0x" + self._decoded_otp[11].encode('hex'), 0)
 
     def tstp(self):
         return int("0x" + self._decoded_otp[10].encode('hex')
                    + self._decoded_otp[9].encode('hex') + self._decoded_otp[8].encode('hex'), 0)
 
     def sessionCtr(self):
-        return int("0x" + self._decoded_otp[11].encode('hex'), 0)
+        return int("0x" + self._decoded_otp[7].encode('hex') + self._decoded_otp[6].encode('hex'), 0)
 
     def rnd(self):
         return int("0x" + self._decoded_otp[12].encode('hex') + self._decoded_otp[13].encode('hex'), 0)
